@@ -1,6 +1,6 @@
 // API 请求工具函数 - 自动附加 JWT token，统一处理错误
 
-const BASE_URL = '/api';
+const BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 function getToken(): string | null {
   return localStorage.getItem('auth_token');

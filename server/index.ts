@@ -15,7 +15,7 @@ const PORT = Number(process.env.PORT) || 3001;
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
+  origin: true, // In production, you might want to specify your Vercel URL here
   credentials: true,
 }));
 
@@ -52,8 +52,8 @@ app.use((err: Error, _req: express.Request, res: express.Response, _next: expres
   res.status(500).json({ error: '服务器内部错误' });
 });
 
-app.listen(PORT, '127.0.0.1', () => {
-  console.log(`✅ 快乐爪爪救助站 API 服务启动成功: http://127.0.0.1:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`✅ 快乐爪爪救助站 API 服务启动成功: http://0.0.0.0:${PORT}`);
 });
 
 export default app;
