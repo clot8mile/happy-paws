@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",
     "server": "tsx server/index.ts",
+    "start": "tsx server/index.ts",
     "dev:all": "concurrently \"npm run server\" \"npm run dev\" --names \"API,WEB\" --prefix-colors \"cyan,magenta\"",
     "build": "vite build",
     "preview": "vite preview",
