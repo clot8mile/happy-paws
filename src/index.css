@@ -1,0 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  
+  /* 低饱和度大地色系配色卡 */
+  --color-primary: #B26134;    /* 陶土色 */
+  --color-primary-hover: #9A522B;
+  --color-secondary: #545E29;  /* 橄榄绿 */
+  --color-accent: #435751;     /* 灰青色 */
+  --color-bg-main: #FDFCF9;    /* 主背景 */
+  --color-bg-warm: #F2E9D5;    /* 暖色背景 */
+  --color-ink: #303026;        /* 文字深色 */
+  --color-ink-muted: #4D4D3C;  /* 文字浅色 */
+}
+
+@layer base {
+  body {
+    @apply bg-bg-main text-ink antialiased;
+  }
+}
+
+@layer utilities {
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
