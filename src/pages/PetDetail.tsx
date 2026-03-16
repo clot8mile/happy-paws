@@ -94,6 +94,7 @@ export default function PetDetail() {
         <img
           src={pet.images?.[0] || ""}
           alt={pet.name}
+          referrerPolicy="no-referrer"
           className="w-full h-full object-cover"
         />
         <div className="absolute bottom-4 right-5 bg-black/50 backdrop-blur-sm text-white text-xs px-3 py-1 rounded-full">

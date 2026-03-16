@@ -142,6 +142,7 @@ export default function Home() {
                     <img
                       src={pet.images?.[0] || ''}
                       alt={pet.name}
+                      referrerPolicy="no-referrer"
                       className="w-full h-full object-cover"
                     />
                     <div className="absolute bottom-3 left-3 bg-white/80 backdrop-blur-md rounded-full px-3 py-1 text-xs font-medium flex items-center gap-1 text-gray-800">
@@ -205,7 +206,12 @@ export default function Home() {
           ) : newPets.length > 0 ? newPets.map((pet) => (
             <Link to={`/pet/${pet.id}`} key={pet.id} className="bg-white rounded-2xl p-4 flex gap-4 shadow-sm border border-gray-100 active:scale-[0.98] transition-transform">
               <div className="w-24 h-24 rounded-xl overflow-hidden flex-shrink-0 bg-primary/10">
-                <img src={pet.images?.[0] || ''} alt={pet.name} className="w-full h-full object-cover" />
+                <img
+                  src={pet.images?.[0] || ''}
+                  alt={pet.name}
+                  referrerPolicy="no-referrer"
+                  className="w-full h-full object-cover"
+                />
               </div>
               <div className="flex-1 py-1 flex flex-col justify-between min-w-0">
                 <div>

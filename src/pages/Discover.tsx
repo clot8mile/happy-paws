@@ -4,6 +4,8 @@ import { Search, SlidersHorizontal, ChevronDown, Heart, X, Dog, Cat, PawPrint } 
 import BottomNav from "../components/BottomNav";
 import { Link } from "react-router-dom";
 import { useFavorites } from "../context/FavoriteContext";
+import { api } from "../lib/api";
+import { Loader2 } from "lucide-react";
 
 export default function Discover() {
   const { toggleFavorite, isFavorite } = useFavorites();
@@ -27,6 +29,8 @@ export default function Discover() {
 
   const [pets, setPets] = useState<any[]>([]);
   const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     // Attempt to get user location
@@ -47,6 +51,8 @@ export default function Discover() {
 
   useEffect(() => {
     const fetchPets = async () => {
+      setIsLoading(true);
+      setError(null);
       try {
         let url = `/pets?sort=${sortBy}`;
         if (activeFilter !== "全部") {
@@ -62,8 +68,7 @@ export default function Discover() {
           url += `&lat=${userLocation.lat}&lng=${userLocation.lng}`;
         }
         
-        const response = await fetch(`http://127.0.0.1:3001/api${url}`);
-        const data = await response.json();
+        const data = await api.get<any[]>(url);
         
         // Simple client-side filtering for size & age if needed (since backend only handles basic cases)
         let processedData = data;
@@ -79,8 +84,11 @@ export default function Discover() {
         }
         
         setPets(processedData);
-      } catch (err) {
+      } catch (err: any) {
         console.error("Fetch pets error:", err);
+        setError(err.message || "获取宠物列表失败");
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -145,7 +153,22 @@ export default function Discover() {
       </div>
 
       <main className="flex-1 px-5 py-4">
-        {pets.length > 0 ? (
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-20 text-primary">
+            <Loader2 className="w-8 h-8 animate-spin mb-2" />
+            <p className="text-sm text-ink-muted">正在加载宠物信息...</p>
+          </div>
+        ) : error ? (
+          <div className="text-center py-10">
+            <p className="text-red-500 mb-4">{error}</p>
+            <button 
+              onClick={() => window.location.reload()}
+              className="px-6 py-2 bg-primary text-white rounded-xl text-sm font-medium"
+            >
+              重试
+            </button>
+          </div>
+        ) : pets.length > 0 ? (
           <div className="grid grid-cols-2 gap-4">
             {pets.map((pet) => (
               <div
@@ -155,27 +178,29 @@ export default function Discover() {
                 <Link to={`/pet/${pet.id}`} className="block">
                   <div className="relative aspect-square w-full bg-gray-100">
                     <img
-                      src={pet.image}
+                      src={pet.images?.[0] || pet.image || ""}
                       alt={pet.name}
+                      referrerPolicy="no-referrer"
                       className="w-full h-full object-cover"
+                      loading="lazy"
                     />
                   </div>
                   <div className="p-3">
                     <div className="flex justify-between items-center mb-1">
-                      <h2 className="text-lg font-bold text-ink">
+                      <h2 className="text-lg font-bold text-ink truncate mr-2">
                         {pet.name}
                       </h2>
                       <span
-                        className={`text-lg ${pet.gender === "female" ? "text-pink-500" : "text-blue-500"}`}
+                        className={`text-lg flex-shrink-0 ${pet.gender === "female" ? "text-pink-500" : "text-blue-500"}`}
                       >
                         {pet.gender === "female" ? "♀" : "♂"}
                       </span>
                     </div>
-                    <p className="text-sm text-ink-muted mb-2">{pet.breed}</p>
+                    <p className="text-sm text-ink-muted mb-2 truncate">{pet.breed}</p>
                     <div className="flex justify-between items-center text-xs text-ink-muted/60">
                       <span>{pet.age}</span>
                       <span>·</span>
-                      <span>{pet.distance}</span>
+                      <span className="truncate ml-1">{pet.distance || pet.distance_str}</span>
                     </div>
                   </div>
                 </Link>
@@ -195,8 +220,9 @@ export default function Discover() {
             ))}
           </div>
         ) : (
-          <div className="text-center py-10 text-gray-500">
-            没有找到匹配的宠物
+          <div className="text-center py-20 text-ink-muted">
+            <PawPrint className="w-12 h-12 mx-auto mb-4 opacity-10" />
+            <p className="text-[15px]">没有找到匹配的宠物</p>
           </div>
         )}
       </main>
