@@ -26,18 +26,29 @@ export default function OptimizedImage({ src, alt, className = "", fallbackText 
     
     // 解析各种可能的图片格式
     let resolvedSrc = "";
-    if (Array.isArray(src) && src.length > 0) {
-      resolvedSrc = src[0];
-    } else if (typeof src === 'string') {
-      if (src.startsWith('{')) {
-        resolvedSrc = src.replace(/[\{\}]/g, '').split(',')[0];
-      } else if (src.startsWith('http')) {
-        resolvedSrc = src;
+    try {
+      if (Array.isArray(src) && src.length > 0) {
+        resolvedSrc = src[0];
+      } else if (typeof src === 'string' && src.length > 0) {
+        if (src.startsWith('[') || src.startsWith('{')) {
+          // 尝试标准 JSON 解析
+          try {
+            const parsed = JSON.parse(src);
+            if (Array.isArray(parsed) && parsed.length > 0) resolvedSrc = parsed[0];
+            else if (typeof parsed === 'object' && parsed !== null) resolvedSrc = parsed.url || parsed.image || "";
+          } catch {
+            // 如果不是标准 JSON，尝试处理 Postgres 数组格式 {"url1", "url2"}
+            resolvedSrc = src.replace(/[\{\}\[\]"']/g, '').split(',')[0].trim();
+          }
+        } else {
+          resolvedSrc = src;
+        }
       }
+    } catch (err) {
+      console.warn("Image parsing failed:", err);
     }
     
-    // 如果没解析出来，可能是空
-    if (!resolvedSrc) {
+    if (!resolvedSrc || resolvedSrc === "null" || resolvedSrc === "undefined") {
        setError(true);
     } else {
        setDisplaySrc(resolvedSrc);

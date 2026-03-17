@@ -65,8 +65,8 @@ export default function ChatRoom() {
             sender: msg.sender_id === authUser.id ? "me" : "them",
             time: new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             status: msg.is_read ? "read" : "sent",
-            avatar: msg.sender_id === authUser.id ? profile.avatar : conversation?.avatar,
-            name: msg.sender_id === authUser.id ? profile.name : conversation?.name,
+            avatar: msg.sender_id === authUser.id ? (profile.avatar || "/placeholder-user.png") : (conversation?.avatar || "/placeholder-pet.png"),
+            name: msg.sender_id === authUser.id ? (profile.name || "我") : (conversation?.name || "救助站人员"),
           }));
           setMessages(formattedMessages);
         }
