@@ -178,11 +178,24 @@ export default function Discover() {
                 <Link to={`/pet/${pet.id}`} className="block">
                   <div className="relative aspect-square w-full bg-gray-100">
                     <img
-                      src={pet.images?.[0] || pet.image || ""}
+                      src={(() => {
+                        if (Array.isArray(pet.images) && pet.images.length > 0) return pet.images[0];
+                        if (typeof pet.images === 'string' && pet.images.startsWith('http')) return pet.images;
+                        // Handle potential Postgres array string format "{url1,url2}"
+                        if (typeof pet.images === 'string' && pet.images.startsWith('{')) {
+                           const match = pet.images.match(/\{([^,]+)/);
+                           if (match) return match[1];
+                        }
+                        return pet.image || "";
+                      })()}
                       alt={pet.name}
                       referrerPolicy="no-referrer"
                       className="w-full h-full object-cover"
                       loading="lazy"
+                      onError={(e) => {
+                        console.error(`Image load failed for ${pet.name}`);
+                        e.currentTarget.src = `https://via.placeholder.com/400/f3f4f6/6b7280?text=${encodeURIComponent(pet.name)}`;
+                      }}
                     />
                   </div>
                   <div className="p-3">
