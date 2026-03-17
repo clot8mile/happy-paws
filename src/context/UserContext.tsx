@@ -104,12 +104,17 @@ export function UserProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem("auth_token");
     localStorage.removeItem("auth_user");
     setAuthUser(null);
-    setProfile(defaultProfile);
+    setProfile({ ...defaultProfile }); // Use a copy to avoid reference issues
   }, []);
 
   const updateProfile = useCallback(async (newProfile: Partial<UserProfile>) => {
-    const updated = await api.put<UserProfile>("/users/me", newProfile);
-    setProfile((prev) => ({ ...prev, ...updated }));
+    try {
+      const updated = await api.put<UserProfile>("/users/me", newProfile);
+      setProfile((prev) => ({ ...prev, ...updated }));
+    } catch (err) {
+      console.error("Update profile failed:", err);
+      throw err; // Re-throw so component can handle it
+    }
   }, []);
 
   return (

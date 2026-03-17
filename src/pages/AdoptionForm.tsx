@@ -1,30 +1,66 @@
 import { motion } from "motion/react";
 import { ArrowLeft, Send, Info } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAdoptions } from "../context/AdoptionContext";
+import { api } from "../lib/api";
 
 export default function AdoptionForm() {
   const navigate = useNavigate();
   const { id } = useParams();
   const { addApplication } = useAdoptions();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [pet, setPet] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    // Simulate API call
-    setTimeout(() => {
-      const newId = addApplication({
-        petName: "Bella",
-        petInfo: "金毛寻回犬混血 / 2岁 / 女孩",
-        image:
-          "https://lh3.googleusercontent.com/aida-public/AB6AXuB4VztHM6RxwWxwxuu2yMipec9rREVczjI4iWGTQirtUgbNfsQI2Mmpa0I_ga2aArfaWlVFwIky8j59qJxTgEQzglxJ7e1zF4eGZq6gk4YufiVk36dQK8sQIqPKJ3gqgAQha9DdGKze5UqgY8B_MVew-D7qNCR7S7GsS2m2rBHX4ks7QSa1OplcZvJ-7QeQPlCiXMFHy8vKgHuVrS7Y5-w6g2lxztZ6W4zJ5JvBKXNpVtPVxs0w5gZLGeg6VkqxBd7AXMM9Xb23YaY",
-      });
-      setIsSubmitting(false);
-      navigate(`/adoption/${newId}`); // Redirect to the progress page
-    }, 1500);
+  useEffect(() => {
+    if (id) {
+      api.get<any>(`/pets/${id}`)
+        .then(data => setPet(data))
+        .catch(err => console.error("Failed to fetch pet for form:", err))
+        .finally(() => setLoading(false));
+    }
+  }, [id]);
+
+  const getFirstImage = (images: any): string => {
+    if (Array.isArray(images) && images.length > 0) return images[0];
+    if (typeof images === 'string') {
+      if (images.startsWith('{')) return images.replace(/[\{\}]/g, '').split(',')[0];
+      if (images.startsWith('http')) return images;
+    }
+    return "";
   };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!pet) return;
+    
+    setIsSubmitting(true);
+    try {
+      const formData = new FormData(e.target as HTMLFormElement);
+      const newId = await addApplication({
+        petId: id,
+        petName: pet.name,
+        petInfo: `${pet.breed} / ${pet.age} / ${pet.gender === 'female' ? '女孩' : '男孩'}`,
+        image: getFirstImage(pet.images),
+        applicantName: formData.get('name') as string,
+        applicantPhone: formData.get('phone') as string,
+        livingCity: formData.get('city') as string,
+        housingType: formData.get('housing') as string,
+        hasExperience: formData.get('experience') === 'true',
+        adoptionReason: formData.get('reason') as string,
+      });
+      navigate(`/adoption/${newId}`);
+    } catch (err) {
+      console.error("Submission failed:", err);
+      alert("提交失败，请重试");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (loading) return <div className="flex-1 flex items-center justify-center min-h-screen"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full"></div></div>;
+  if (!pet) return <div className="flex-1 flex items-center justify-center min-h-screen"><p>未找到宠物信息</p></div>;
 
   return (
     <motion.div
@@ -49,15 +85,15 @@ export default function AdoptionForm() {
         <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 mb-6">
           <div className="flex items-center gap-4 mb-6 pb-6 border-b border-gray-50">
             <img
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4VztHM6RxwWxwxuu2yMipec9rREVczjI4iWGTQirtUgbNfsQI2Mmpa0I_ga2aArfaWlVFwIky8j59qJxTgEQzglxJ7e1zF4eGZq6gk4YufiVk36dQK8sQIqPKJ3gqgAQha9DdGKze5UqgY8B_MVew-D7qNCR7S7GsS2m2rBHX4ks7QSa1OplcZvJ-7QeQPlCiXMFHy8vKgHuVrS7Y5-w6g2lxztZ6W4zJ5JvBKXNpVtPVxs0w5gZLGeg6VkqxBd7AXMM9Xb23YaY"
-              alt="Bella"
+              src={getFirstImage(pet.images)}
+              alt={pet.name}
               className="w-16 h-16 rounded-2xl object-cover"
             />
             <div>
               <h2 className="text-lg font-bold text-slate-900">
-                申请领养 Bella
+                申请领养 {pet.name}
               </h2>
-              <p className="text-sm text-gray-500">金毛寻回犬混血 · 2岁</p>
+              <p className="text-sm text-gray-500">{pet.breed} · {pet.age}</p>
             </div>
           </div>
 
@@ -73,6 +109,7 @@ export default function AdoptionForm() {
                   </label>
                   <input
                     required
+                    name="name"
                     type="text"
                     placeholder="请输入您的姓名"
                     className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 text-slate-900 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
@@ -84,6 +121,7 @@ export default function AdoptionForm() {
                   </label>
                   <input
                     required
+                    name="phone"
                     type="tel"
                     placeholder="请输入您的手机号"
                     className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 text-slate-900 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
@@ -103,6 +141,7 @@ export default function AdoptionForm() {
                   </label>
                   <input
                     required
+                    name="city"
                     type="text"
                     placeholder="例如：上海市 静安区"
                     className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 text-slate-900 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
@@ -112,10 +151,10 @@ export default function AdoptionForm() {
                   <label className="block text-sm font-medium text-slate-700 mb-1.5 ml-1">
                     住房情况
                   </label>
-                  <select className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 text-slate-900 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all appearance-none">
-                    <option>自有住房</option>
-                    <option>租房（房东允许养宠）</option>
-                    <option>其他</option>
+                  <select name="housing" className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 text-slate-900 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all appearance-none">
+                    <option value="自有住房">自有住房</option>
+                    <option value="租房（房东允许养宠）">租房（房东允许养宠）</option>
+                    <option value="其他">其他</option>
                   </select>
                 </div>
               </div>
@@ -135,6 +174,7 @@ export default function AdoptionForm() {
                       <input
                         type="radio"
                         name="experience"
+                        value="true"
                         className="hidden"
                         defaultChecked
                       />
@@ -144,6 +184,7 @@ export default function AdoptionForm() {
                       <input
                         type="radio"
                         name="experience"
+                        value="false"
                         className="hidden"
                       />
                       <span className="text-sm font-medium">新手</span>
@@ -155,8 +196,10 @@ export default function AdoptionForm() {
                     领养理由
                   </label>
                   <textarea
+                    required
+                    name="reason"
                     rows={4}
-                    placeholder="请简单描述您为什么想领养 Bella..."
+                    placeholder={`请简单描述您为什么想领养 ${pet.name}...`}
                     className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 text-slate-900 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all resize-none"
                   ></textarea>
                 </div>

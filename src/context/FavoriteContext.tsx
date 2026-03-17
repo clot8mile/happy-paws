@@ -21,14 +21,22 @@ interface FavoriteContextType {
 const FavoriteContext = createContext<FavoriteContextType | undefined>(undefined);
 
 function mapPetFromApi(pet: any): Pet {
+  const images = pet.images;
+  let firstImage = '';
+  if (Array.isArray(images) && images.length > 0) firstImage = images[0];
+  else if (typeof images === 'string') {
+    if (images.startsWith('{')) firstImage = images.replace(/[\{\}]/g, '').split(',')[0];
+    else if (images.startsWith('http')) firstImage = images;
+  }
+
   return {
     id: pet.id,
     name: pet.name,
     breed: pet.breed,
     age: pet.age,
-    image: (pet.images && pet.images[0]) || '',
+    image: firstImage || pet.image || '',
     gender: pet.gender,
-    distance: pet.distance,
+    distance: pet.distance || pet.distance_str,
   };
 }
 

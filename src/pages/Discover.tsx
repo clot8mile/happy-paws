@@ -179,12 +179,11 @@ export default function Discover() {
                   <div className="relative aspect-square w-full bg-gray-100">
                     <img
                       src={(() => {
-                        if (Array.isArray(pet.images) && pet.images.length > 0) return pet.images[0];
-                        if (typeof pet.images === 'string' && pet.images.startsWith('http')) return pet.images;
-                        // Handle potential Postgres array string format "{url1,url2}"
-                        if (typeof pet.images === 'string' && pet.images.startsWith('{')) {
-                           const match = pet.images.match(/\{([^,]+)/);
-                           if (match) return match[1];
+                        const images = pet.images;
+                        if (Array.isArray(images) && images.length > 0) return images[0];
+                        if (typeof images === 'string') {
+                          if (images.startsWith('{')) return images.replace(/[\{\}]/g, '').split(',')[0];
+                          if (images.startsWith('http')) return images;
                         }
                         return pet.image || "";
                       })()}

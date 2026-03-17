@@ -1,17 +1,19 @@
 import { Link, useLocation } from "react-router-dom";
 import { Home, Compass, PawPrint, MessageCircle, User } from "lucide-react";
 import { useChat } from "../context/ChatContext";
+import { useUser } from "../context/UserContext";
 
 export default function BottomNav() {
   const location = useLocation();
   const currentPath = location.pathname;
   const { totalUnread } = useChat();
+  const { isLoggedIn } = useUser();
 
   const navItems = [
     { path: "/home", icon: Home, label: "首页" },
     { path: "/discover", icon: Compass, label: "发现" },
     { path: "/adoption", icon: PawPrint, label: "领养" },
-    { path: "/chat", icon: MessageCircle, label: "消息", badge: totalUnread },
+    { path: "/chat", icon: MessageCircle, label: "消息", badge: isLoggedIn ? totalUnread : 0 },
     { path: "/profile", icon: User, label: "我的" },
   ];
 

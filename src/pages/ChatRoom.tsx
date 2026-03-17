@@ -32,33 +32,51 @@ export default function ChatRoom() {
   const emojiPickerRef = useRef<HTMLDivElement>(null);
   const conversation = conversations.find(c => c.id === id);
 
+  // Sync Supabase session with our auth token
+  useEffect(() => {
+    if (authUser?.token) {
+      console.log("Syncing Supabase session...");
+      supabase.auth.setSession({
+        access_token: authUser.token,
+        refresh_token: '', // We don't have this from custom backend usually
+      }).then(({ error }) => {
+        if (error) console.error("Supabase session sync error:", error);
+        else console.log("Supabase session synced successfully");
+      });
+    }
+  }, [authUser]);
+
   // Load message history from Supabase
   useEffect(() => {
     if (!id || !authUser) return;
 
     const fetchMessages = async () => {
-      const { data, error } = await supabase
-        .from('messages')
-        .select('*')
-        .eq('chat_id', id)
-        .order('created_at', { ascending: true });
+      try {
+        const { data, error } = await supabase
+          .from('messages')
+          .select('*')
+          .eq('chat_id', id)
+          .order('created_at', { ascending: true });
 
-      if (error) {
-        console.error("Error fetching messages:", error);
-        return;
-      }
+        if (error) {
+          console.error("Error fetching messages:", error);
+          return;
+        }
 
-      if (data) {
-        const formattedMessages: Message[] = data.map(msg => ({
-          id: msg.id,
-          text: msg.content,
-          sender: msg.sender_id === authUser.id ? "me" : "them",
-          time: new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          status: msg.is_read ? "read" : "sent",
-          avatar: msg.sender_id === authUser.id ? profile.avatar : conversation?.avatar,
-          name: msg.sender_id === authUser.id ? profile.name : conversation?.name,
-        }));
-        setMessages(formattedMessages);
+        if (data) {
+          const formattedMessages: Message[] = data.map(msg => ({
+            id: msg.id,
+            text: msg.content,
+            sender: msg.sender_id === authUser.id ? "me" : "them",
+            time: new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            status: msg.is_read ? "read" : "sent",
+            avatar: msg.sender_id === authUser.id ? profile.avatar : conversation?.avatar,
+            name: msg.sender_id === authUser.id ? profile.name : conversation?.name,
+          }));
+          setMessages(formattedMessages);
+        }
+      } catch (err) {
+        console.error("fetchMessages failed:", err);
       }
     };
 
@@ -179,25 +197,34 @@ export default function ChatRoom() {
   const handleSend = async () => {
     if (!inputValue.trim() || !authUser || !id) return;
     
-    // Optimistic UI insert could be done, but we'll let subscription handle it.
     const messageContent = inputValue.trim();
     setInputValue("");
     
-    // We assume the receiver is the admin for now if it's chat id=1.
-    // In a real app we'd fetch the other participant from the conversation details.
-    // If not specified, we can just insert and not worry about receiver for standard messages, or we can use admin's UUID
-    const receiverId = id === "1" ? "your-admin-uuid" : "your-other-user-uuid"; 
+    console.log("Sending message to chat_id:", id);
     
-    const { error } = await supabase.from('messages').insert({
+    // In a real app, you'd have a real receiver user.
+    // For this prototype, we'll try to use a valid UUID or null if the schema allows.
+    // If id='1', it's the rescue station. 
+    // We'll try to send for now without a receiver_id if it fails with the placeholder.
+    const messageData: any = {
       chat_id: id,
       sender_id: authUser.id,
-      receiver_id: authUser.id,
       content: messageContent,
-    });
+    };
+
+    // Only add receiver_id if it's not a placeholder that might fail FK
+    if (id === "1") {
+       // Ideally this is the rescue station owner's ID
+       // messageData.receiver_id = "..."; 
+    }
+
+    const { error } = await supabase.from('messages').insert(messageData);
 
     if (error) {
-       console.error("Send message error:", error);
-       alert("发送失败: " + error.message + " (" + error.code + ")");
+       console.error("Send message error details:", error);
+       alert("发送失败: " + error.message + "\n代码: " + error.code + "\n建议: 请确保已执行最新的 SQL 迁移并刷新页面。");
+    } else {
+       console.log("Message sent successfully");
     }
   };
 

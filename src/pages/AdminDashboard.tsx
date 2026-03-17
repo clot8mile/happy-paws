@@ -16,6 +16,15 @@ import {
 import { api } from "../lib/api";
 import { useUser } from "../context/UserContext";
 
+function getFirstImage(images: any, fallback: string = ""): string {
+  if (Array.isArray(images) && images.length > 0) return images[0];
+  if (typeof images === 'string') {
+    if (images.startsWith('{')) return images.replace(/[\{\}]/g, '').split(',')[0];
+    if (images.startsWith('http')) return images;
+  }
+  return fallback;
+}
+
 interface Application {
   id: string;
   pet_id: string;
@@ -219,7 +228,7 @@ export default function AdminDashboard() {
             ) : (
                pets.map((pet) => (
                  <div key={pet.id} className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
-                   <img src={pet.image} alt={pet.name} className="w-16 h-16 rounded-xl object-cover" />
+                   <img src={getFirstImage((pet as any).images || pet.image)} alt={pet.name} className="w-16 h-16 rounded-xl object-cover" />
                    <div className="flex-1">
                      <div className="flex items-center gap-2">
                        <h3 className="font-bold text-slate-900">{pet.name}</h3>

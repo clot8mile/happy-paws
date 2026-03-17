@@ -70,7 +70,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   const { isLoggedIn } = useUser();
   const [conversations, setConversations] = useState<Conversation[]>(INITIAL_CONVERSATIONS);
 
-  // 登录后从 API 加载对话状态
+  // 登录后从 API 加载对话状态，退出时重置
   useEffect(() => {
     if (isLoggedIn) {
       api.get<any[]>('/chats')
@@ -87,6 +87,9 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
           setConversations(merged.length > 0 ? merged : INITIAL_CONVERSATIONS);
         })
         .catch(() => setConversations(INITIAL_CONVERSATIONS));
+    } else {
+      // 退出登录时，重置为包含 0 未读的初始列表或空列表
+      setConversations(INITIAL_CONVERSATIONS.map(c => ({ ...c, unread: 0 })));
     }
   }, [isLoggedIn]);
 
