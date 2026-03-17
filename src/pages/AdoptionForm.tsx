@@ -3,12 +3,14 @@ import { ArrowLeft, Send, Info } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import { useAdoptions } from "../context/AdoptionContext";
+import { useNotification } from "../context/NotificationContext";
 import { api } from "../lib/api";
 
 export default function AdoptionForm() {
   const navigate = useNavigate();
   const { id } = useParams();
   const { addApplication } = useAdoptions();
+  const { showToast } = useNotification();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pet, setPet] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -50,10 +52,11 @@ export default function AdoptionForm() {
         hasExperience: formData.get('experience') === 'true',
         adoptionReason: formData.get('reason') as string,
       });
+      showToast("申请提交成功！", "success");
       navigate(`/adoption/${newId}`);
     } catch (err) {
       console.error("Submission failed:", err);
-      alert("提交失败，请重试");
+      showToast("提交失败，请重试", "error");
     } finally {
       setIsSubmitting(false);
     }

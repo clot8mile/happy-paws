@@ -5,23 +5,18 @@ import { useEffect, useState, useRef } from "react";
 import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
 import { useChat } from "../context/ChatContext";
 import { useUser } from "../context/UserContext";
+import { useNotification } from "../context/NotificationContext";
 import { supabase } from "../lib/supabase";
+import { Message } from "../types";
 
-interface Message {
-  id: string;
-  text: string;
-  sender: "me" | "them";
-  time: string;
-  status?: "sent" | "delivered" | "read";
-  avatar?: string;
-  name?: string;
-}
+// Local Message interface is now imported from ../types
 
 export default function ChatRoom() {
   const navigate = useNavigate();
   const { id } = useParams();
   const { markAsRead, conversations } = useChat();
   const { authUser, profile } = useUser();
+  const { showToast } = useNotification();
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isListening, setIsListening] = useState(false);
@@ -182,7 +177,7 @@ export default function ChatRoom() {
 
   const toggleListening = () => {
     if (!recognitionRef.current) {
-      alert("您的浏览器不支持语音输入功能");
+      showToast("您的浏览器不支持语音输入功能", "warning");
       return;
     }
 
@@ -222,7 +217,7 @@ export default function ChatRoom() {
 
     if (error) {
        console.error("Send message error details:", error);
-       alert("发送失败: " + error.message + "\n代码: " + error.code + "\n建议: 请确保已执行最新的 SQL 迁移并刷新页面。");
+       showToast("发送失败，请稍后重试", "error");
     } else {
        console.log("Message sent successfully");
     }

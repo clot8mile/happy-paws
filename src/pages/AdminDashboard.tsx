@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { api } from "../lib/api";
 import { useUser } from "../context/UserContext";
+import { useNotification } from "../context/NotificationContext";
 
 function getFirstImage(images: any, fallback: string = ""): string {
   if (Array.isArray(images) && images.length > 0) return images[0];
@@ -55,6 +56,7 @@ interface Pet {
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const { authUser, profile } = useUser();
+  const { showToast } = useNotification();
   const [activeTab, setActiveTab] = useState<'applications' | 'pets'>('applications');
   const [applications, setApplications] = useState<Application[]>([]);
   const [pets, setPets] = useState<Pet[]>([]);
@@ -62,7 +64,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     if (profile?.role !== 'admin') {
-      alert("无访问权限：您不是管理员");
+      showToast("无访问权限：您不是管理员", "error");
       navigate("/profile");
       return;
     }
@@ -92,8 +94,9 @@ export default function AdminDashboard() {
       setApplications(prev => 
         prev.map(app => app.id === id ? { ...app, status: newStatus as any } : app)
       );
+      showToast("状态更新成功");
     } catch (err) {
-      alert("状态更新失败");
+      showToast("状态更新失败", "error");
     }
   };
 
@@ -103,8 +106,9 @@ export default function AdminDashboard() {
       setPets(prev => 
         prev.map(pet => pet.id === id ? { ...pet, is_adopted: !currentStatus } : pet)
       );
+      showToast("宠物状态更新成功");
     } catch (err) {
-      alert("宠物状态更新失败");
+      showToast("宠物状态更新失败", "error");
     }
   };
 
@@ -113,8 +117,9 @@ export default function AdminDashboard() {
     try {
       await api.delete(`/pets/admin/${id}`);
       setPets(prev => prev.filter(pet => pet.id !== id));
+      showToast("宠物已删除");
     } catch (err) {
-      alert("宠物删除失败");
+      showToast("宠物删除失败", "error");
     }
   };
 

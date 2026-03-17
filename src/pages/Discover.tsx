@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Search, SlidersHorizontal, ChevronDown, Heart, X, Dog, Cat, PawPrint } from "lucide-react";
 import BottomNav from "../components/BottomNav";
@@ -6,6 +6,24 @@ import { Link } from "react-router-dom";
 import { useFavorites } from "../context/FavoriteContext";
 import { api } from "../lib/api";
 import { Loader2 } from "lucide-react";
+import OptimizedImage from "../components/OptimizedImage";
+
+import { Pet } from "../types";
+
+const CATEGORY_FILTERS = [
+  { label: "全部", icon: "🐾" },
+  { label: "猫", icon: "🐱" },
+  { label: "狗", icon: "🐶" },
+];
+
+const AGE_OPTIONS = ["全部", "幼年", "青年", "成年", "老年"];
+const GENDER_OPTIONS = ["公", "母", "全部"];
+const SIZE_OPTIONS = [
+  { id: "全部", label: "全部" },
+  { id: "小型", label: "小型" },
+  { id: "中型", label: "中型" },
+  { id: "大型", label: "大型" },
+];
 
 export default function Discover() {
   const { toggleFavorite, isFavorite } = useFavorites();
@@ -21,19 +39,12 @@ export default function Discover() {
   const [filterAge, setFilterAge] = useState("全部");
   const [filterSize, setFilterSize] = useState("全部");
 
-  const filters = [
-    { label: "全部", icon: "🐾" },
-    { label: "猫", icon: "🐱" },
-    { label: "狗", icon: "🐶" },
-  ];
-
-  const [pets, setPets] = useState<any[]>([]);
+  const [pets, setPets] = useState<Pet[]>([]);
   const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Attempt to get user location
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -49,51 +60,110 @@ export default function Discover() {
     }
   }, []);
 
-  useEffect(() => {
-    const fetchPets = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        let url = `/pets?sort=${sortBy}`;
-        if (activeFilter !== "全部") {
-          url += `&type=${activeFilter}`;
-        }
-        if (searchQuery) {
-          url += `&search=${searchQuery}`;
-        }
-        if (filterGender !== "全部") {
-          url += `&gender=${filterGender}`;
-        }
-        if (userLocation) {
-          url += `&lat=${userLocation.lat}&lng=${userLocation.lng}`;
-        }
-        
-        const data = await api.get<any[]>(url);
-        
-        // Simple client-side filtering for size & age if needed (since backend only handles basic cases)
-        let processedData = data;
-        
-        if (filterAge !== "全部") {
-           processedData = processedData.filter((pet: any) => {
-              if (filterAge === "幼年") return pet.age_months <= 12;
-              if (filterAge === "青年") return pet.age_months > 12 && pet.age_months <= 36;
-              if (filterAge === "成年") return pet.age_months > 36 && pet.age_months <= 84;
-              if (filterAge === "老年") return pet.age_months > 84;
-              return true;
-           });
-        }
-        
-        setPets(processedData);
-      } catch (err: any) {
-        console.error("Fetch pets error:", err);
-        setError(err.message || "获取宠物列表失败");
-      } finally {
-        setIsLoading(false);
+  const fetchPets = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      let url = `/pets?sort=${sortBy}`;
+      if (activeFilter !== "全部") {
+        url += `&type=${activeFilter}`;
       }
-    };
+      if (searchQuery) {
+        url += `&search=${searchQuery}`;
+      }
+      if (filterGender !== "全部") {
+        url += `&gender=${filterGender}`;
+      }
+      if (userLocation) {
+        url += `&lat=${userLocation.lat}&lng=${userLocation.lng}`;
+      }
+      
+      const data = await api.get<Pet[]>(url);
+      
+      let processedData = data;
+      
+      if (filterAge !== "全部") {
+         processedData = processedData.filter((pet: Pet) => {
+            if (filterAge === "幼年") return pet.age_months <= 12;
+            if (filterAge === "青年") return pet.age_months > 12 && pet.age_months <= 36;
+            if (filterAge === "成年") return pet.age_months > 36 && pet.age_months <= 84;
+            if (filterAge === "老年") return pet.age_months > 84;
+            return true;
+         });
+      }
+      
+      setPets(processedData);
+    } catch (err: any) {
+      console.error("Fetch pets error:", err);
+      setError(err.message || "获取宠物列表失败");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [sortBy, activeFilter, searchQuery, filterGender, filterAge, userLocation]);
 
+  useEffect(() => {
     fetchPets();
-  }, [sortBy, activeFilter, searchQuery, filterGender, filterAge, filterSize, userLocation]);
+  }, [fetchPets]);
+
+  const handleApplyFilters = useCallback(() => {
+    if (filterType === "狗") setActiveFilter("狗");
+    else if (filterType === "猫") setActiveFilter("猫");
+    else setActiveFilter("全部");
+    setShowFilterModal(false);
+  }, [filterType]);
+
+  const renderedPets = useMemo(() => {
+    if (pets.length === 0) return null;
+    return (
+      <div className="grid grid-cols-2 gap-4">
+        {pets.map((pet) => (
+          <div
+            key={pet.id}
+            className="bg-white rounded-xl shadow-sm overflow-hidden flex flex-col border border-gray-50 relative"
+          >
+            <Link to={`/pet/${pet.id}`} className="block">
+              <OptimizedImage
+                src={pet.images || pet.image}
+                alt={pet.name}
+                className="aspect-square w-full"
+                fallbackText={pet.name}
+              />
+              <div className="p-3">
+                <div className="flex justify-between items-center mb-1">
+                  <h2 className="text-lg font-bold text-ink truncate mr-2">
+                    {pet.name}
+                  </h2>
+                  <span
+                    className={`text-lg flex-shrink-0 ${pet.gender === "female" ? "text-pink-500" : "text-blue-500"}`}
+                  >
+                    {pet.gender === "female" ? "♀" : "♂"}
+                  </span>
+                </div>
+                <p className="text-sm text-ink-muted mb-2 truncate">{pet.breed}</p>
+                <div className="flex justify-between items-center text-xs text-ink-muted/60">
+                  <span>{pet.age}</span>
+                  <span>·</span>
+                  <span className="truncate ml-1">{pet.distance || pet.distance_str}</span>
+                </div>
+              </div>
+            </Link>
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleFavorite(pet);
+              }}
+              className={`absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center transition-colors shadow-sm ${isFavorite(pet.id) ? "bg-red-50 text-red-500" : "bg-white/50 backdrop-blur-sm text-gray-800"}`}
+            >
+              <Heart
+                className={`w-4 h-4 ${isFavorite(pet.id) ? "fill-current" : ""}`}
+              />
+            </button>
+          </div>
+        ))}
+      </div>
+    );
+  }, [pets, isFavorite, toggleFavorite]);
 
   return (
     <motion.div
@@ -136,7 +206,7 @@ export default function Discover() {
       </header>
 
       <div className="px-5 py-4 overflow-x-auto scrollbar-hide flex space-x-3 bg-white border-b border-gray-50">
-        {filters.map((filter, idx) => (
+        {CATEGORY_FILTERS.map((filter, idx) => (
           <button
             key={idx}
             onClick={() => setActiveFilter(filter.label)}
@@ -162,75 +232,14 @@ export default function Discover() {
           <div className="text-center py-10">
             <p className="text-red-500 mb-4">{error}</p>
             <button 
-              onClick={() => window.location.reload()}
+              onClick={() => fetchPets()}
               className="px-6 py-2 bg-primary text-white rounded-xl text-sm font-medium"
             >
               重试
             </button>
           </div>
         ) : pets.length > 0 ? (
-          <div className="grid grid-cols-2 gap-4">
-            {pets.map((pet) => (
-              <div
-                key={pet.id}
-                className="bg-white rounded-xl shadow-sm overflow-hidden flex flex-col border border-gray-50 relative"
-              >
-                <Link to={`/pet/${pet.id}`} className="block">
-                  <div className="relative aspect-square w-full bg-gray-100">
-                    <img
-                      src={(() => {
-                        const images = pet.images;
-                        if (Array.isArray(images) && images.length > 0) return images[0];
-                        if (typeof images === 'string') {
-                          if (images.startsWith('{')) return images.replace(/[\{\}]/g, '').split(',')[0];
-                          if (images.startsWith('http')) return images;
-                        }
-                        return pet.image || "";
-                      })()}
-                      alt={pet.name}
-                      referrerPolicy="no-referrer"
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                      onError={(e) => {
-                        console.error(`Image load failed for ${pet.name}`);
-                        e.currentTarget.src = `https://via.placeholder.com/400/f3f4f6/6b7280?text=${encodeURIComponent(pet.name)}`;
-                      }}
-                    />
-                  </div>
-                  <div className="p-3">
-                    <div className="flex justify-between items-center mb-1">
-                      <h2 className="text-lg font-bold text-ink truncate mr-2">
-                        {pet.name}
-                      </h2>
-                      <span
-                        className={`text-lg flex-shrink-0 ${pet.gender === "female" ? "text-pink-500" : "text-blue-500"}`}
-                      >
-                        {pet.gender === "female" ? "♀" : "♂"}
-                      </span>
-                    </div>
-                    <p className="text-sm text-ink-muted mb-2 truncate">{pet.breed}</p>
-                    <div className="flex justify-between items-center text-xs text-ink-muted/60">
-                      <span>{pet.age}</span>
-                      <span>·</span>
-                      <span className="truncate ml-1">{pet.distance || pet.distance_str}</span>
-                    </div>
-                  </div>
-                </Link>
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    toggleFavorite(pet);
-                  }}
-                  className={`absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center transition-colors shadow-sm ${isFavorite(pet.id) ? "bg-red-50 text-red-500" : "bg-white/50 backdrop-blur-sm text-gray-800"}`}
-                >
-                  <Heart
-                    className={`w-4 h-4 ${isFavorite(pet.id) ? "fill-current" : ""}`}
-                  />
-                </button>
-              </div>
-            ))}
-          </div>
+          renderedPets
         ) : (
           <div className="text-center py-20 text-ink-muted">
             <PawPrint className="w-12 h-12 mx-auto mb-4 opacity-10" />
@@ -345,7 +354,7 @@ export default function Discover() {
                 <div>
                   <h3 className="text-[15px] font-bold text-ink mb-3">性别</h3>
                   <div className="grid grid-cols-3 gap-3">
-                    {["公", "母", "全部"].map((gender) => (
+                    {GENDER_OPTIONS.map((gender) => (
                       <button
                         key={gender}
                         onClick={() => setFilterGender(gender)}
@@ -365,7 +374,7 @@ export default function Discover() {
                 <div>
                   <h3 className="text-[15px] font-bold text-ink mb-3">年龄</h3>
                   <div className="grid grid-cols-5 gap-2">
-                    {["全部", "幼年", "青年", "成年", "老年"].map((age) => (
+                    {AGE_OPTIONS.map((age) => (
                       <button
                         key={age}
                         onClick={() => setFilterAge(age)}
@@ -385,12 +394,7 @@ export default function Discover() {
                 <div>
                   <h3 className="text-[15px] font-bold text-ink mb-3">体型</h3>
                   <div className="grid grid-cols-4 gap-2">
-                    {[
-                      { id: "全部", label: "全部" },
-                      { id: "小型", label: "小型" },
-                      { id: "中型", label: "中型" },
-                      { id: "大型", label: "大型" },
-                    ].map((size) => (
+                    {SIZE_OPTIONS.map((size) => (
                       <button
                         key={size.id}
                         onClick={() => setFilterSize(size.id)}
@@ -408,12 +412,7 @@ export default function Discover() {
 
                 <div className="pt-2">
                   <button
-                    onClick={() => {
-                      if (filterType === "狗") setActiveFilter("狗");
-                      else if (filterType === "猫") setActiveFilter("猫");
-                      else setActiveFilter("全部");
-                      setShowFilterModal(false);
-                    }}
+                    onClick={handleApplyFilters}
                     className="w-full bg-primary text-white py-4 rounded-2xl font-bold shadow-lg shadow-primary/30 active:scale-[0.98] transition-all uppercase tracking-wider"
                   >
                     立即搜索

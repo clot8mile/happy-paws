@@ -38,7 +38,7 @@ async function request<T>(
     throw new Error(errorMsg);
   }
 
-  return response.json();
+  return response.json() as Promise<T>;
 }
 
 export const api = {

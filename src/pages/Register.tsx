@@ -12,10 +12,12 @@ import {
   User,
 } from "lucide-react";
 import { useUser } from "../context/UserContext";
+import { useNotification } from "../context/NotificationContext";
 
 export default function Register() {
   const navigate = useNavigate();
   const { register } = useUser();
+  const { showToast } = useNotification();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -33,6 +35,7 @@ export default function Register() {
     setIsLoading(true);
     try {
       await register(email, password, name);
+      showToast("注册成功！开启您的宠爱之旅吧");
       navigate("/home");
     } catch (err: any) {
       setError(err.message || "注册失败，请稍后重试");

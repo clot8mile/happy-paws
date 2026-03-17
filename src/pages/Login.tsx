@@ -12,10 +12,12 @@ import {
   PawPrint,
 } from "lucide-react";
 import { useUser } from "../context/UserContext";
+import { useNotification } from "../context/NotificationContext";
 
 export default function Login() {
   const navigate = useNavigate();
   const { login } = useUser();
+  const { showToast } = useNotification();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -28,6 +30,7 @@ export default function Login() {
     setIsLoading(true);
     try {
       await login(email, password);
+      showToast("登录成功，欢迎回来！");
       navigate("/home");
     } catch (err: any) {
       setError(err.message || "登录失败，请检查邮箱和密码");

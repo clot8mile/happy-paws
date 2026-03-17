@@ -3,11 +3,13 @@ import { ChevronLeft, Camera, Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import React, { useState } from "react";
 import { useUser } from "../context/UserContext";
+import { useNotification } from "../context/NotificationContext";
 import { uploadAvatar } from "../lib/storage";
 
 export default function EditProfile() {
   const navigate = useNavigate();
   const { profile, authUser, updateProfile } = useUser();
+  const { showToast } = useNotification();
   const [name, setName] = useState(profile.name);
   const [bio, setBio] = useState(profile.bio);
   const [location, setLocation] = useState(profile.location);
@@ -21,14 +23,15 @@ export default function EditProfile() {
         setIsUploading(true);
         const publicUrl = await uploadAvatar(authUser.id, file);
         setAvatar(publicUrl);
+        showToast("头像上传成功");
       } catch (err) {
         console.error("Failed to upload avatar:", err);
-        alert("头像上传失败，请稍后重试");
+        showToast("头像上传失败，请稍后重试", "error");
       } finally {
         setIsUploading(false);
       }
     } else if (!authUser) {
-      alert("请先登录记录");
+      showToast("请先登录", "warning");
     }
   };
 
@@ -40,6 +43,7 @@ export default function EditProfile() {
       location,
       avatar,
     });
+    showToast("个人资料已更新");
     navigate("/profile");
   };
 

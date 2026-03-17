@@ -21,6 +21,7 @@ import { FavoriteProvider } from "./context/FavoriteContext";
 import { AdoptionProvider } from "./context/AdoptionContext";
 import { ChatProvider } from "./context/ChatContext";
 import { UserProvider } from "./context/UserContext";
+import { NotificationProvider } from "./context/NotificationContext";
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -57,15 +58,17 @@ export default function App() {
     <div className="bg-gray-100 min-h-screen flex justify-center font-sans">
       <div className="w-full max-w-md bg-white min-h-screen relative overflow-hidden shadow-2xl flex flex-col">
         <BrowserRouter>
-          <UserProvider>
-            <FavoriteProvider>
-              <AdoptionProvider>
-                <ChatProvider>
-                  <AnimatedRoutes />
-                </ChatProvider>
-              </AdoptionProvider>
-            </FavoriteProvider>
-          </UserProvider>
+          <NotificationProvider>
+            <UserProvider>
+              <FavoriteProvider>
+                <AdoptionProvider>
+                  <ChatProvider>
+                    <AnimatedRoutes />
+                  </ChatProvider>
+                </AdoptionProvider>
+              </FavoriteProvider>
+            </UserProvider>
+          </NotificationProvider>
         </BrowserRouter>
       </div>
     </div>
