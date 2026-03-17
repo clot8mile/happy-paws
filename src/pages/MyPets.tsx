@@ -2,6 +2,8 @@ import { motion } from "motion/react";
 import { ArrowLeft, PawPrint } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAdoptions } from "../context/AdoptionContext";
+import EmptyState from "../components/EmptyState";
+import { Heart } from "lucide-react";
 
 export default function MyPets() {
   const navigate = useNavigate();
@@ -26,51 +28,59 @@ export default function MyPets() {
 
       <main className="flex-1 p-4 overflow-y-auto">
         <div className="grid grid-cols-1 gap-4">
-          {applications.map((pet) => {
-            // Parse petInfo if possible, or just display it
-            // petInfo format: "Breed / Age / Gender"
-            const infoParts = pet.petInfo.split(" / ");
-            const breed = infoParts[0] || "";
-            const age = infoParts[1] || "";
+          {applications.length === 0 ? (
+            <EmptyState 
+              icon={Heart}
+              title="暂无领养记录"
+              description="您还没有领养过小动物，去发现页看看有没有心仪的伙伴吧！"
+              actionLabel="去发现"
+              onAction={() => navigate("/discover")}
+            />
+          ) : (
+            applications.map((pet) => {
+              const infoParts = pet.petInfo.split(" / ");
+              const breed = infoParts[0] || "";
+              const age = infoParts[1] || "";
 
-            return (
-              <div
-                key={pet.id}
-                className="bg-white rounded-2xl p-3 shadow-sm border border-gray-100 flex items-center gap-4 active:scale-[0.98] transition-transform"
-                onClick={() => navigate(`/adoption/${pet.id}`)}
-              >
-                <div className="w-20 h-20 rounded-xl overflow-hidden shrink-0">
-                  <img
-                    src={pet.image}
-                    alt={pet.petName}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex justify-between items-start">
-                    <h3 className="text-lg font-bold text-ink truncate">
-                      {pet.petName}
-                    </h3>
-                    <span
-                      className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
-                        pet.status === "已领养"
-                          ? "bg-primary/10 text-primary"
-                          : "bg-secondary/10 text-secondary"
-                      }`}
-                    >
-                      {pet.status}
-                    </span>
+              return (
+                <div
+                  key={pet.id}
+                  className="bg-white rounded-2xl p-3 shadow-sm border border-gray-100 flex items-center gap-4 active:scale-[0.98] transition-transform"
+                  onClick={() => navigate(`/adoption/${pet.id}`)}
+                >
+                  <div className="w-20 h-20 rounded-xl overflow-hidden shrink-0">
+                    <img
+                      src={pet.image}
+                      alt={pet.petName}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
-                  <p className="text-sm text-ink-muted mb-1">{breed}</p>
-                  <div className="flex items-center gap-2 text-xs text-ink-muted/60">
-                    <span className="bg-gray-100 px-2 py-0.5 rounded-md">
-                      {age}
-                    </span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-start">
+                      <h3 className="text-lg font-bold text-ink truncate">
+                        {pet.petName}
+                      </h3>
+                      <span
+                        className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                          pet.status === "已领养"
+                            ? "bg-primary/10 text-primary"
+                            : "bg-secondary/10 text-secondary"
+                        }`}
+                      >
+                        {pet.status}
+                      </span>
+                    </div>
+                    <p className="text-sm text-ink-muted mb-1">{breed}</p>
+                    <div className="flex items-center gap-2 text-xs text-ink-muted/60">
+                      <span className="bg-gray-100 px-2 py-0.5 rounded-md">
+                        {age}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })
+          )}
 
           {/* Add New Pet Card */}
           <button

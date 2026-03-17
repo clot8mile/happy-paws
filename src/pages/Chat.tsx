@@ -3,6 +3,8 @@ import { Search, Settings } from "lucide-react";
 import BottomNav from "../components/BottomNav";
 import { Link, useNavigate } from "react-router-dom";
 import { useChat } from "../context/ChatContext";
+import EmptyState from "../components/EmptyState";
+import { MessageSquareText } from "lucide-react";
 
 export default function Chat() {
   const { conversations } = useChat();
@@ -28,7 +30,7 @@ export default function Chat() {
       </header>
 
       <div className="px-5 mb-5">
-        <div className="bg-gray-100/50 rounded-2xl px-4 py-3 flex items-center gap-3 border border-gray-100/50">
+        <div className="bg-border-subtle rounded-2xl px-4 py-3 flex items-center gap-3 border border-border-subtle">
           <Search className="w-5 h-5 text-ink-muted/50" />
           <input
             type="text"
@@ -39,49 +41,59 @@ export default function Chat() {
       </div>
 
       <main className="flex-1 px-5">
-        <div className="bg-white rounded-[28px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-gray-50 overflow-hidden">
-          <div className="divide-y divide-gray-50">
-            {conversations.map((chat) => (
-              <Link
-                key={chat.id}
-                to={`/chat/${chat.id}`}
-                className="flex items-center px-4 py-5 hover:bg-gray-50 transition-colors active:bg-gray-100"
-              >
-                <div className="relative mr-4 shrink-0">
-                  {chat.isOfficial ? (
-                    <div
-                      className={`w-12 h-12 rounded-full flex items-center justify-center ${chat.color} shadow-sm`}
-                    >
-                      {chat.icon && <chat.icon className="w-6 h-6" />}
-                    </div>
-                  ) : (
-                    <img
-                      src={chat.avatar}
-                      alt={chat.name}
-                      className="w-12 h-12 rounded-full object-cover border border-gray-100 shadow-sm"
-                    />
-                  )}
-                  {chat.unread > 0 && (
-                    <div className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-red-500 rounded-full border-2 border-white flex items-center justify-center text-[10px] text-white font-bold shadow-sm">
-                      {chat.unread}
-                    </div>
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex justify-between items-baseline mb-1">
-                    <h3 className="text-[16px] font-bold text-ink truncate">
-                      {chat.name}
-                    </h3>
-                    <span className="text-[11px] text-ink-muted/60 whitespace-nowrap ml-2 font-medium">
-                      {chat.time}
-                    </span>
+        <div className="bg-card-bg rounded-[28px] shadow-sm border border-border-subtle overflow-hidden">
+          <div className="divide-y divide-border-subtle">
+            {conversations.length === 0 ? (
+              <EmptyState 
+                icon={MessageSquareText}
+                title="暂无消息"
+                description="和其他铲屎官聊聊天，交流养宠心得吧！"
+                actionLabel="去发现"
+                onAction={() => navigate("/discover")}
+              />
+            ) : (
+              conversations.map((chat) => (
+                <Link
+                  key={chat.id}
+                  to={`/chat/${chat.id}`}
+                  className="flex items-center px-4 py-5 hover:bg-bg-warm transition-colors active:bg-border-subtle"
+                >
+                  <div className="relative mr-4 shrink-0">
+                    {chat.isOfficial ? (
+                      <div
+                        className={`w-12 h-12 rounded-full flex items-center justify-center ${chat.color} shadow-sm`}
+                      >
+                        {chat.icon && <chat.icon className="w-6 h-6" />}
+                      </div>
+                    ) : (
+                        <img
+                          src={chat.avatar}
+                          alt={chat.name}
+                          className="w-12 h-12 rounded-full object-cover border border-border-subtle shadow-sm"
+                        />
+                    )}
+                    {chat.unread > 0 && (
+                      <div className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-red-500 rounded-full border-2 border-card-bg flex items-center justify-center text-[10px] text-white font-bold shadow-sm">
+                        {chat.unread}
+                      </div>
+                    )}
                   </div>
-                  <p className="text-[13px] text-ink-muted truncate leading-snug">
-                    {chat.lastMessage}
-                  </p>
-                </div>
-              </Link>
-            ))}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-baseline mb-1">
+                      <h3 className="text-[16px] font-bold text-ink truncate">
+                        {chat.name}
+                      </h3>
+                      <span className="text-[11px] text-ink-muted/60 whitespace-nowrap ml-2 font-medium">
+                        {chat.time}
+                      </span>
+                    </div>
+                    <p className="text-[13px] text-ink-muted truncate leading-snug">
+                      {chat.lastMessage}
+                    </p>
+                  </div>
+                </Link>
+              ))
+            )}
           </div>
         </div>
       </main>

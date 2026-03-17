@@ -13,6 +13,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect, useMemo } from "react";
 import { useFavorites } from "../context/FavoriteContext";
 import { api } from "../lib/api";
+import InteractiveButton from "../components/InteractiveButton";
 
 function getFirstImage(images: any, fallback: string = ""): string {
   if (Array.isArray(images) && images.length > 0) return images[0];
@@ -70,12 +71,12 @@ export default function PetDetail() {
       <div className="absolute top-12 left-0 right-0 px-5 flex justify-between items-center z-20">
         <button
           onClick={() => navigate(-1)}
-          className="w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-ink shadow-sm"
+          className="w-10 h-10 rounded-full bg-card-bg/80 backdrop-blur-sm flex items-center justify-center text-ink shadow-sm border border-border-subtle"
         >
           <ArrowLeft className="w-6 h-6" />
         </button>
         <div className="flex gap-3">
-          <button className="w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-ink shadow-sm">
+          <button className="w-10 h-10 rounded-full bg-card-bg/80 backdrop-blur-sm flex items-center justify-center text-ink shadow-sm border border-border-subtle">
             <Share2 className="w-5 h-5" />
           </button>
           <button
@@ -89,7 +90,7 @@ export default function PetDetail() {
                 gender: pet.gender,
               })
             }
-            className={`w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-sm transition-colors ${isPetFavorite ? "text-red-500" : "text-ink"}`}
+            className={`w-10 h-10 rounded-full bg-card-bg/80 backdrop-blur-sm flex items-center justify-center shadow-sm transition-colors border border-border-subtle ${isPetFavorite ? "text-red-500" : "text-ink"}`}
           >
             <Heart
               className={`w-5 h-5 ${isPetFavorite ? "fill-current" : ""}`}
@@ -130,19 +131,19 @@ export default function PetDetail() {
 
         {/* Quick Info Cards */}
         <div className="grid grid-cols-3 gap-3 mb-8">
-          <div className="bg-bg-warm/30 p-3 rounded-2xl flex flex-col items-center justify-center">
+          <div className="bg-bg-warm p-3 rounded-2xl flex flex-col items-center justify-center border border-border-subtle">
             <Calendar className="w-5 h-5 text-secondary mb-1" />
             <span className="text-xs text-ink-muted mb-0.5">年龄</span>
             <span className="text-sm font-bold text-ink">{pet.age}</span>
           </div>
-          <div className="bg-bg-warm/30 p-3 rounded-2xl flex flex-col items-center justify-center">
+          <div className="bg-bg-warm p-3 rounded-2xl flex flex-col items-center justify-center border border-border-subtle">
             <Info className="w-5 h-5 text-secondary mb-1" />
             <span className="text-xs text-ink-muted mb-0.5">性别</span>
             <span className="text-sm font-bold text-ink">
-              {pet.gender}
+              {pet.gender === 'female' ? '女孩' : '男孩'}
             </span>
           </div>
-          <div className="bg-bg-warm/30 p-3 rounded-2xl flex flex-col items-center justify-center">
+          <div className="bg-bg-warm p-3 rounded-2xl flex flex-col items-center justify-center border border-border-subtle">
             <ShieldCheck className="w-5 h-5 text-secondary mb-1" />
             <span className="text-xs text-ink-muted mb-0.5">体型</span>
             <span className="text-sm font-bold text-ink">{pet.size}</span>
@@ -155,7 +156,7 @@ export default function PetDetail() {
             <button
               key={index}
               onClick={() => navigate("/chat/1")}
-              className="bg-white border border-gray-100 text-ink-muted px-4 py-1.5 rounded-xl text-xs font-medium shadow-sm active:scale-95 transition-all"
+              className="bg-card-bg border border-border-subtle text-ink-muted px-4 py-1.5 rounded-xl text-xs font-bold shadow-sm active:scale-95 transition-all"
             >
               {tag}
             </button>
@@ -203,20 +204,20 @@ export default function PetDetail() {
       </main>
 
       {/* Bottom Action Bar */}
-      <div className="fixed bottom-0 left-0 right-0 p-5 bg-white/80 backdrop-blur-md border-t border-gray-100 flex gap-4 z-30 max-w-md mx-auto">
+      <div className="fixed bottom-0 left-0 right-0 p-5 bg-card-bg/80 backdrop-blur-md border-t border-border-subtle flex gap-4 z-30 max-w-md mx-auto">
         <button 
           onClick={() => navigate("/chat/1")}
-          className="flex-1 bg-gray-100 text-ink font-bold py-3.5 rounded-2xl flex items-center justify-center gap-2 active:scale-95 transition-transform"
+          className="flex-1 bg-border-subtle text-ink font-bold py-3.5 rounded-2xl flex items-center justify-center gap-2 active:scale-95 transition-transform"
         >
           <MessageCircle className="w-5 h-5" />
           咨询
         </button>
-        <button
+        <InteractiveButton
           onClick={() => navigate(`/adoption/apply/${pet.id}`)}
           className="flex-[2] bg-primary text-white font-bold py-3.5 rounded-2xl shadow-lg shadow-primary/20"
         >
           申请领养
-        </button>
+        </InteractiveButton>
       </div>
     </motion.div>
   );

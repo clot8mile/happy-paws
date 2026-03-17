@@ -5,6 +5,7 @@ import BottomNav from "../components/BottomNav";
 import { Link, useNavigate } from "react-router-dom";
 import { useFavorites } from "../context/FavoriteContext";
 import { api } from "../lib/api";
+import InteractiveButton from "../components/InteractiveButton";
 
 interface Pet {
   id: string;
@@ -76,7 +77,7 @@ export default function Home() {
       </header>
 
       <div className="px-5 mb-6">
-        <div className="bg-gray-100 rounded-full py-3 px-5 flex items-center gap-3">
+        <div className="bg-border-subtle rounded-full py-3 px-5 flex items-center gap-3">
           <Search className="w-5 h-5 text-gray-400 flex-shrink-0" />
           <input
             type="text"
@@ -128,14 +129,14 @@ export default function Home() {
         </div>
         {isLoading ? (
           <div className="flex px-5 gap-4 pb-4">
-            {[1,2].map(i => <div key={i} className="bg-gray-100 rounded-2xl flex-shrink-0 w-64 h-72 animate-pulse" />)}
+            {[1,2].map(i => <div key={i} className="bg-border-subtle rounded-2xl flex-shrink-0 w-64 h-72 animate-pulse" />)}
           </div>
         ) : recommendedPets.length > 0 ? (
           <div className="flex overflow-x-auto px-5 gap-4 pb-4 scrollbar-hide">
             {recommendedPets.map((pet) => (
               <div
                 key={pet.id}
-                className="bg-white rounded-2xl flex-shrink-0 w-64 shadow-sm border border-gray-100 overflow-hidden relative"
+                className="bg-card-bg rounded-2xl flex-shrink-0 w-64 shadow-sm border border-border-subtle overflow-hidden relative"
               >
                 <Link to={`/pet/${pet.id}`} className="block">
                   <div className="relative h-48 w-full">
@@ -145,7 +146,7 @@ export default function Home() {
                       referrerPolicy="no-referrer"
                       className="w-full h-full object-cover"
                     />
-                    <div className="absolute bottom-3 left-3 bg-white/80 backdrop-blur-md rounded-full px-3 py-1 text-xs font-medium flex items-center gap-1 text-gray-800">
+                    <div className="absolute bottom-3 left-3 bg-card-bg/80 backdrop-blur-md rounded-full px-3 py-1 text-xs font-medium flex items-center gap-1 text-ink">
                       <span className={`${pet.gender === "female" ? "text-pink-500" : "text-blue-500"} font-bold`}>
                         {pet.gender === "female" ? "♀" : "♂"}
                       </span>{" "}
@@ -178,19 +179,19 @@ export default function Home() {
       <div className="px-5 mb-8 flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
         <button 
           onClick={() => setCategory("全部")}
-          className={`${category === "全部" ? "bg-[#8B5E3C] text-white" : "bg-gray-200 text-gray-600"} rounded-full px-6 py-2 text-[15px] font-medium whitespace-nowrap transition-colors`}
+          className={`${category === "全部" ? "bg-primary text-white" : "bg-border-subtle text-ink-muted"} rounded-full px-6 py-2 text-[15px] font-medium whitespace-nowrap transition-colors`}
         >
           全部
         </button>
         <button 
           onClick={() => setCategory("狗狗")}
-          className={`${category === "狗狗" ? "bg-[#8B5E3C] text-white" : "bg-gray-200 text-gray-600"} rounded-full px-6 py-2 text-[15px] font-medium whitespace-nowrap flex items-center gap-2 transition-colors`}
+          className={`${category === "狗狗" ? "bg-primary text-white" : "bg-border-subtle text-ink-muted"} rounded-full px-6 py-2 text-[15px] font-medium whitespace-nowrap flex items-center gap-2 transition-colors`}
         >
           <PawPrint className="w-4 h-4" /> 狗狗
         </button>
         <button 
           onClick={() => setCategory("猫猫")}
-          className={`${category === "猫猫" ? "bg-[#8B5E3C] text-white" : "bg-gray-200 text-gray-600"} rounded-full px-6 py-2 text-[15px] font-medium whitespace-nowrap flex items-center gap-2 transition-colors`}
+          className={`${category === "猫猫" ? "bg-primary text-white" : "bg-border-subtle text-ink-muted"} rounded-full px-6 py-2 text-[15px] font-medium whitespace-nowrap flex items-center gap-2 transition-colors`}
         >
           <PawPrint className="w-4 h-4" /> 猫猫
         </button>
@@ -201,10 +202,10 @@ export default function Home() {
         <div className="flex flex-col gap-4">
           {isLoading ? (
             <div className="flex flex-col gap-4">
-              {[1,2].map(i => <div key={i} className="bg-gray-100 rounded-2xl h-24 animate-pulse" />)}
+              {[1,2].map(i => <div key={i} className="bg-border-subtle rounded-2xl h-24 animate-pulse" />)}
             </div>
           ) : newPets.length > 0 ? newPets.map((pet) => (
-            <Link to={`/pet/${pet.id}`} key={pet.id} className="bg-white rounded-2xl p-4 flex gap-4 shadow-sm border border-gray-100 active:scale-[0.98] transition-transform">
+            <Link to={`/pet/${pet.id}`} key={pet.id} className="bg-card-bg rounded-2xl p-4 flex gap-4 shadow-sm border border-border-subtle active:scale-[0.98] transition-transform">
               <div className="w-24 h-24 rounded-xl overflow-hidden flex-shrink-0 bg-primary/10">
                 <img
                   src={pet.images?.[0] || ''}
@@ -269,7 +270,7 @@ export default function Home() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
-            className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-xl relative"
+            className="bg-card-bg rounded-3xl p-6 w-full max-w-sm shadow-xl relative"
           >
             <button 
               onClick={() => setShowTipModal(false)}
@@ -302,12 +303,12 @@ export default function Home() {
                 确保垃圾桶有盖子且不易被推翻。
               </li>
             </ul>
-            <button 
+            <InteractiveButton 
               onClick={() => setShowTipModal(false)}
-              className="w-full bg-primary text-white font-bold py-3 rounded-xl"
+              className="w-full bg-primary text-white font-bold py-3 rounded-xl shadow-lg shadow-primary/20"
             >
               我知道了
-            </button>
+            </InteractiveButton>
           </motion.div>
         </div>
       )}

@@ -7,7 +7,7 @@ import { useFavorites } from "../context/FavoriteContext";
 import { api } from "../lib/api";
 import { Loader2 } from "lucide-react";
 import OptimizedImage from "../components/OptimizedImage";
-
+import EmptyState from "../components/EmptyState";
 import { Pet } from "../types";
 
 const CATEGORY_FILTERS = [
@@ -119,7 +119,7 @@ export default function Discover() {
         {pets.map((pet) => (
           <div
             key={pet.id}
-            className="bg-white rounded-xl shadow-sm overflow-hidden flex flex-col border border-gray-50 relative"
+            className="bg-card-bg rounded-xl shadow-sm overflow-hidden flex flex-col border border-border-subtle relative"
           >
             <Link to={`/pet/${pet.id}`} className="block">
               <OptimizedImage
@@ -153,7 +153,7 @@ export default function Discover() {
                 e.stopPropagation();
                 toggleFavorite(pet);
               }}
-              className={`absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center transition-colors shadow-sm ${isFavorite(pet.id) ? "bg-red-50 text-red-500" : "bg-white/50 backdrop-blur-sm text-gray-800"}`}
+              className={`absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center transition-colors shadow-sm ${isFavorite(pet.id) ? "bg-red-50 text-red-500" : "bg-card-bg/50 backdrop-blur-sm text-ink"}`}
             >
               <Heart
                 className={`w-4 h-4 ${isFavorite(pet.id) ? "fill-current" : ""}`}
@@ -172,7 +172,7 @@ export default function Discover() {
       exit={{ opacity: 0 }}
       className="flex-1 flex flex-col bg-bg-main overflow-y-auto pb-24"
     >
-      <header className="px-5 pt-12 pb-4 bg-white sticky top-0 z-20 border-b border-gray-100">
+      <header className="px-5 pt-12 pb-4 bg-card-bg sticky top-0 z-20 border-b border-border-subtle">
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-2xl font-bold tracking-tight text-ink">
             发现宠物
@@ -182,7 +182,7 @@ export default function Discover() {
             className={`w-10 h-10 rounded-full flex items-center justify-center transition-all border ${
               sortBy !== "distance" 
                 ? "bg-primary text-white border-primary shadow-sm" 
-                : "bg-gray-50 text-ink border-gray-100"
+                : "bg-border-subtle text-ink border-border-subtle"
             }`}
           >
             <SlidersHorizontal className="w-5 h-5" />
@@ -195,7 +195,7 @@ export default function Discover() {
             placeholder="搜索您心仪的宠物..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-gray-50 border border-gray-100 rounded-2xl py-3 pl-12 pr-10 text-[15px] outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all text-ink"
+            className="w-full bg-border-subtle border border-border-subtle rounded-2xl py-3 pl-12 pr-10 text-[15px] outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all text-ink"
           />
           {searchQuery && (
             <button onClick={() => setSearchQuery("")} className="absolute right-4 top-1/2 -translate-y-1/2 text-ink-muted hover:text-ink">
@@ -205,7 +205,7 @@ export default function Discover() {
         </div>
       </header>
 
-      <div className="px-5 py-4 overflow-x-auto scrollbar-hide flex space-x-3 bg-white border-b border-gray-50">
+      <div className="px-5 py-4 overflow-x-auto scrollbar-hide flex space-x-3 bg-card-bg border-b border-border-subtle">
         {CATEGORY_FILTERS.map((filter, idx) => (
           <button
             key={idx}
@@ -213,7 +213,7 @@ export default function Discover() {
             className={`flex items-center space-x-2 px-6 py-2.5 rounded-2xl text-[15px] font-bold whitespace-nowrap transition-all ${
               activeFilter === filter.label
                 ? "bg-primary text-white shadow-lg shadow-primary/30 scale-105"
-                : "bg-gray-50 text-ink-muted border border-gray-100 hover:bg-gray-100"
+                : "bg-border-subtle text-ink-muted border border-border-subtle hover:bg-bg-warm"
             }`}
           >
             <span className="text-lg">{filter.icon}</span>
@@ -241,10 +241,18 @@ export default function Discover() {
         ) : pets.length > 0 ? (
           renderedPets
         ) : (
-          <div className="text-center py-20 text-ink-muted">
-            <PawPrint className="w-12 h-12 mx-auto mb-4 opacity-10" />
-            <p className="text-[15px]">没有找到匹配的宠物</p>
-          </div>
+          <EmptyState 
+            title="没发现小伙伴"
+            description="根据当前的筛选条件，没有找到匹配的小动物。试着调整一下搜索条件吧！"
+            actionLabel="重置筛选"
+            onAction={() => {
+              setActiveFilter("全部");
+              setSearchQuery("");
+              setFilterGender("全部");
+              setFilterAge("全部");
+              fetchPets();
+            }}
+          />
         )}
       </main>
 
@@ -266,14 +274,14 @@ export default function Discover() {
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white rounded-t-[32px] z-[70] p-6 pb-10 shadow-2xl max-h-[90vh] overflow-y-auto"
+              className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-card-bg rounded-t-[32px] z-[70] p-6 pb-10 shadow-2xl max-h-[90vh] overflow-y-auto"
             >
-              <div className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-6" />
+              <div className="w-12 h-1.5 bg-border-subtle rounded-full mx-auto mb-6" />
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-bold text-ink">筛选宠物</h2>
                 <button 
                   onClick={() => setShowFilterModal(false)}
-                  className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-ink-muted"
+                  className="w-8 h-8 rounded-full bg-border-subtle flex items-center justify-center text-ink-muted"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -289,7 +297,7 @@ export default function Discover() {
                       className={`py-3 rounded-xl border font-medium text-sm transition-all ${
                         sortBy === "distance"
                           ? "bg-primary/5 border-primary text-primary"
-                          : "bg-white border-gray-100 text-ink-muted"
+                          : "bg-card-bg border-border-subtle text-ink-muted"
                       }`}
                     >
                       距离最近
@@ -299,7 +307,7 @@ export default function Discover() {
                       className={`py-3 rounded-xl border font-medium text-sm transition-all ${
                         sortBy === "age"
                           ? "bg-primary/5 border-primary text-primary"
-                          : "bg-white border-gray-100 text-ink-muted"
+                          : "bg-card-bg border-border-subtle text-ink-muted"
                       }`}
                     >
                       年龄最小
@@ -322,7 +330,7 @@ export default function Discover() {
                         className={`flex flex-col items-center justify-center py-3 rounded-xl border transition-all ${
                           filterType === type.id
                             ? "bg-primary/5 border-primary text-primary"
-                            : "bg-white border-gray-100 text-ink-muted/40"
+                            : "bg-card-bg border-border-subtle text-ink-muted/40"
                         }`}
                       >
                         <type.icon className="w-6 h-6 mb-1" />
@@ -339,7 +347,7 @@ export default function Discover() {
                     <select
                       value={filterBreed}
                       onChange={(e) => setFilterBreed(e.target.value)}
-                      className="w-full bg-white border border-gray-100 rounded-xl py-3 px-4 text-[15px] appearance-none outline-none focus:border-primary transition-all text-ink"
+                      className="w-full bg-card-bg border border-border-subtle rounded-xl py-3 px-4 text-[15px] appearance-none outline-none focus:border-primary transition-all text-ink"
                     >
                       <option value="">选择品种</option>
                       <option value="golden">金毛寻回犬</option>
@@ -361,7 +369,7 @@ export default function Discover() {
                         className={`py-3 rounded-xl border font-medium text-sm transition-all ${
                           filterGender === gender
                             ? "bg-primary/5 border-primary text-primary"
-                            : "bg-white border-gray-100 text-ink-muted"
+                            : "bg-card-bg border-border-subtle text-ink-muted"
                         }`}
                       >
                         {gender}
@@ -381,7 +389,7 @@ export default function Discover() {
                         className={`py-3 rounded-xl border font-medium text-xs transition-all ${
                           filterAge === age
                             ? "bg-primary/5 border-primary text-primary"
-                            : "bg-white border-gray-100 text-ink-muted"
+                            : "bg-card-bg border-border-subtle text-ink-muted"
                         }`}
                       >
                         {age}
@@ -401,7 +409,7 @@ export default function Discover() {
                         className={`py-3 rounded-xl border font-bold text-sm transition-all ${
                           filterSize === size.id
                             ? "bg-primary/5 border-primary text-primary"
-                            : "bg-white border-gray-100 text-ink-muted"
+                            : "bg-card-bg border-border-subtle text-ink-muted"
                         }`}
                       >
                         {size.label}

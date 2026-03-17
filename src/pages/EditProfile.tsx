@@ -55,17 +55,17 @@ export default function EditProfile() {
       className="flex-1 flex flex-col bg-bg-main min-h-screen"
     >
       {/* Header */}
-      <div className="px-5 pt-12 pb-6 flex items-center justify-between bg-white border-b border-gray-100">
+      <div className="px-5 pt-12 pb-6 flex items-center justify-between bg-card-bg border-b border-border-subtle">
         <button
           onClick={() => navigate(-1)}
-          className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-ink active:scale-90 transition-all"
+          className="w-10 h-10 rounded-xl bg-border-subtle flex items-center justify-center text-ink active:scale-90 transition-all"
         >
           <ChevronLeft className="w-6 h-6" />
         </button>
         <h1 className="text-lg font-bold text-ink">编辑资料</h1>
         <button
           onClick={handleSave}
-          className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white shadow-md shadow-primary/20 active:scale-90 transition-all"
+          className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white shadow-md shadow-primary/20 active:scale-90 transition-all font-bold"
         >
           <Check className="w-5 h-5" />
         </button>
@@ -75,14 +75,14 @@ export default function EditProfile() {
         {/* Avatar Section */}
         <div className="flex flex-col items-center">
           <div className="relative group">
-            <div className="w-28 h-28 rounded-full border-4 border-white shadow-xl overflow-hidden bg-gray-100">
+            <div className="w-28 h-28 rounded-full border-4 border-card-bg shadow-xl overflow-hidden bg-border-subtle">
               <img
                 src={avatar}
                 alt="Avatar"
                 className="w-full h-full object-cover"
               />
             </div>
-            <label className="absolute bottom-0 right-0 w-9 h-9 rounded-full bg-primary border-4 border-white flex items-center justify-center text-white shadow-lg active:scale-90 transition-all cursor-pointer">
+            <label className="absolute bottom-0 right-0 w-9 h-9 rounded-full bg-primary border-4 border-card-bg flex items-center justify-center text-white shadow-lg active:scale-90 transition-all cursor-pointer">
               <Camera className="w-4 h-4" />
               <input
                 type="file"
@@ -103,7 +103,7 @@ export default function EditProfile() {
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-5 py-4 rounded-2xl bg-white border border-gray-100 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium text-ink"
+              className="w-full px-5 py-4 rounded-2xl bg-card-bg border border-border-subtle shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-bold text-ink placeholder:text-ink-muted/30"
               placeholder="请输入昵称"
             />
           </div>
@@ -114,7 +114,7 @@ export default function EditProfile() {
               value={bio}
               onChange={(e) => setBio(e.target.value)}
               rows={3}
-              className="w-full px-5 py-4 rounded-2xl bg-white border border-gray-100 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium text-ink resize-none"
+              className="w-full px-5 py-4 rounded-2xl bg-card-bg border border-border-subtle shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-bold text-ink resize-none placeholder:text-ink-muted/30"
               placeholder="介绍一下你自己吧..."
             />
           </div>
@@ -125,7 +125,7 @@ export default function EditProfile() {
               type="text"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              className="w-full px-5 py-4 rounded-2xl bg-white border border-gray-100 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium text-ink"
+              className="w-full px-5 py-4 rounded-2xl bg-card-bg border border-border-subtle shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-bold text-ink placeholder:text-ink-muted/30"
               placeholder="请输入所在地"
             />
           </div>
@@ -139,11 +139,11 @@ export default function EditProfile() {
           </div>
           <div className="flex flex-wrap gap-3">
             {profile.tags.map((tag, index) => (
-              <span key={index} className="px-4 py-2 rounded-xl bg-primary/10 text-primary text-xs font-bold border border-primary/10">
+              <span key={index} className="px-4 py-2 rounded-xl bg-primary/10 text-primary text-xs font-bold border border-primary/20">
                 {tag}
               </span>
             ))}
-            <button className="px-4 py-2 rounded-xl bg-gray-50 text-ink-muted/40 text-xs font-bold border border-dashed border-gray-200">
+            <button className="px-4 py-2 rounded-xl bg-border-subtle text-ink-muted/40 text-xs font-bold border border-dashed border-primary/20">
               + 添加标签
             </button>
           </div>

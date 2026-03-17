@@ -1,6 +1,8 @@
 import { motion } from "motion/react";
-import { ChevronLeft, LogOut, Shield, Bell, HelpCircle, Info } from "lucide-react";
+import { ChevronLeft, LogOut, Shield, Bell, HelpCircle, Info, Palette } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import ThemeToggle from "../components/ThemeToggle";
+import InteractiveButton from "../components/InteractiveButton";
 
 export default function Settings() {
   const navigate = useNavigate();
@@ -9,7 +11,7 @@ export default function Settings() {
     { icon: Bell, label: "通知设置", color: "text-accent", bg: "bg-accent/10" },
     { icon: Shield, label: "隐私与安全", color: "text-secondary", bg: "bg-secondary/10" },
     { icon: HelpCircle, label: "帮助与反馈", color: "text-primary", bg: "bg-primary/10" },
-    { icon: Info, label: "关于我们", color: "text-ink-muted", bg: "bg-gray-100" },
+    { icon: Info, label: "关于我们", color: "text-ink-muted", bg: "bg-border-subtle" },
   ];
 
   return (
@@ -31,12 +33,32 @@ export default function Settings() {
       </header>
 
       <main className="flex-1 px-5 py-4 space-y-6">
-        <div className="bg-white rounded-3xl shadow-sm border border-gray-50 overflow-hidden">
-          <div className="divide-y divide-gray-50">
-            {settingsItems.map((item, index) => (
+        <section>
+          <h2 className="text-[13px] font-bold text-ink-muted/50 uppercase tracking-widest px-4 mb-3">外观偏好</h2>
+          <div className="bg-card-bg rounded-3xl shadow-sm border border-border-subtle overflow-hidden">
+            <div className="flex items-center justify-between p-4">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary border border-primary/10">
+                  <Palette className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="font-bold text-ink leading-tight">深色模式</p>
+                  <p className="text-[11px] text-ink-muted/60 mt-0.5">自适应或手动切换深浅皮肤</p>
+                </div>
+              </div>
+              <ThemeToggle />
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <h2 className="text-[13px] font-bold text-ink-muted/50 uppercase tracking-widest px-4 mb-3">通用设置</h2>
+          <div className="bg-card-bg rounded-3xl shadow-sm border border-border-subtle overflow-hidden">
+            <div className="divide-y divide-border-subtle">
+              {settingsItems.map((item, index) => (
               <button
                 key={index}
-                className="w-full flex items-center justify-between p-4 hover:bg-gray-50 active:bg-gray-100 transition-colors"
+                className="w-full flex items-center justify-between p-4 hover:bg-bg-warm active:bg-border-subtle transition-colors"
               >
                 <div className="flex items-center gap-4">
                   <div className={`w-10 h-10 rounded-xl ${item.bg} flex items-center justify-center ${item.color}`}>
@@ -49,11 +71,12 @@ export default function Settings() {
             ))}
           </div>
         </div>
+      </section>
 
-        <button className="w-full bg-white rounded-3xl p-4 flex items-center justify-center gap-2 text-red-500 font-bold shadow-sm border border-gray-50 active:scale-[0.98] transition-all">
+      <InteractiveButton className="w-full bg-card-bg rounded-3xl p-4 flex items-center justify-center gap-2 text-red-500 font-bold shadow-sm border border-border-subtle">
           <LogOut className="w-5 h-5" />
           退出登录
-        </button>
+        </InteractiveButton>
       </main>
     </motion.div>
   );

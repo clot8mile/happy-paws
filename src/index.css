@@ -4,20 +4,50 @@
 @theme {
   --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
   
-  /* 低饱和度大地色系配色卡 */
-  --color-primary: #B26134;    /* 陶土色 */
-  --color-primary-hover: #9A522B;
-  --color-secondary: #545E29;  /* 橄榄绿 */
-  --color-accent: #435751;     /* 灰青色 */
-  --color-bg-main: #FDFCF9;    /* 主背景 */
-  --color-bg-warm: #F2E9D5;    /* 暖色背景 */
-  --color-ink: #303026;        /* 文字深色 */
-  --color-ink-muted: #4D4D3C;  /* 文字浅色 */
+  /* 定义语义化颜色标记 (Tokens) */
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-secondary: var(--secondary);
+  --color-accent: var(--accent);
+  --color-bg-main: var(--bg-main);
+  --color-bg-warm: var(--bg-warm);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-border-subtle: var(--border-subtle);
+  --color-card-bg: var(--card-bg);
+}
+
+:root {
+  /* Light Theme Palette */
+  --primary: #B26134;
+  --primary-hover: #9A522B;
+  --secondary: #545E29;
+  --accent: #435751;
+  --bg-main: #FDFCF9;
+  --bg-warm: #F2E9D5;
+  --ink: #303026;
+  --ink-muted: #4D4D3C;
+  --border-subtle: #F3F1ED;
+  --card-bg: #FFFFFF;
+}
+
+.dark {
+  /* Dark Theme Palette (Sleek Onyx) */
+  --primary: #D17F4E;
+  --primary-hover: #E39466;
+  --secondary: #74813E;
+  --accent: #5E7A71;
+  --bg-main: #121210;
+  --bg-warm: #1C1C18;
+  --ink: #F2F2F0;
+  --ink-muted: #A3A39A;
+  --border-subtle: #2A2A25;
+  --card-bg: #1E1E1B;
 }
 
 @layer base {
   body {
-    @apply bg-bg-main text-ink antialiased;
+    @apply bg-bg-main text-ink antialiased transition-colors duration-300;
   }
 }
 
