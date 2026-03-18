@@ -14,15 +14,8 @@ import { useState, useEffect, useMemo } from "react";
 import { useFavorites } from "../context/FavoriteContext";
 import { api } from "../lib/api";
 import InteractiveButton from "../components/InteractiveButton";
+import OptimizedImage from "../components/OptimizedImage";
 
-function getFirstImage(images: any, fallback: string = ""): string {
-  if (Array.isArray(images) && images.length > 0) return images[0];
-  if (typeof images === 'string') {
-    if (images.startsWith('{')) return images.replace(/[\{\}]/g, '').split(',')[0];
-    if (images.startsWith('http')) return images;
-  }
-  return fallback;
-}
 
 export default function PetDetail() {
   const navigate = useNavigate();
@@ -86,7 +79,7 @@ export default function PetDetail() {
                 name: pet.name,
                 breed: pet.breed,
                 age: pet.age,
-                image: getFirstImage(pet.images),
+                image: pet.images,
                 gender: pet.gender,
               })
             }
@@ -99,16 +92,15 @@ export default function PetDetail() {
         </div>
       </div>
 
-      {/* Image Gallery */}
-      <div className="relative h-[400px] w-full overflow-hidden bg-gray-100">
-        <img
-          src={getFirstImage(pet.images)}
+      <div className="relative h-[400px] w-full bg-gray-100">
+        <OptimizedImage
+          src={pet.images}
           alt={pet.name}
-          referrerPolicy="no-referrer"
-          className="w-full h-full object-cover"
+          className="w-full h-full"
+          fallbackText={pet.name}
         />
-        <div className="absolute bottom-4 right-5 bg-black/50 backdrop-blur-sm text-white text-xs px-3 py-1 rounded-full">
-          1 / {pet.images?.length || 1}
+        <div className="absolute bottom-4 right-5 bg-black/50 backdrop-blur-sm text-white text-xs px-3 py-1 rounded-full z-10">
+          1 / {Array.isArray(pet.images) ? pet.images.length : 1}
         </div>
       </div>
 

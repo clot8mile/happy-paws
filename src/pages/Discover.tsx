@@ -66,7 +66,8 @@ export default function Discover() {
     try {
       let url = `/pets?sort=${sortBy}`;
       if (activeFilter !== "全部") {
-        url += `&type=${activeFilter}`;
+        const typeMap: Record<string, string> = { "猫": "cat", "狗": "dog", "其他": "other" };
+        url += `&type=${typeMap[activeFilter] || activeFilter}`;
       }
       if (searchQuery) {
         url += `&search=${searchQuery}`;
@@ -106,9 +107,7 @@ export default function Discover() {
   }, [fetchPets]);
 
   const handleApplyFilters = useCallback(() => {
-    if (filterType === "狗") setActiveFilter("狗");
-    else if (filterType === "猫") setActiveFilter("猫");
-    else setActiveFilter("全部");
+    setActiveFilter(filterType);
     setShowFilterModal(false);
   }, [filterType]);
 

@@ -1,7 +1,6 @@
 import { motion } from "motion/react";
 import { ChevronLeft, LogOut, Shield, Bell, HelpCircle, Info, Palette } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import ThemeToggle from "../components/ThemeToggle";
 import InteractiveButton from "../components/InteractiveButton";
 
 export default function Settings() {
@@ -33,23 +32,6 @@ export default function Settings() {
       </header>
 
       <main className="flex-1 px-5 py-4 space-y-6">
-        <section>
-          <h2 className="text-[13px] font-bold text-ink-muted/50 uppercase tracking-widest px-4 mb-3">外观偏好</h2>
-          <div className="bg-card-bg rounded-3xl shadow-sm border border-border-subtle overflow-hidden">
-            <div className="flex items-center justify-between p-4">
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary border border-primary/10">
-                  <Palette className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="font-bold text-ink leading-tight">深色模式</p>
-                  <p className="text-[11px] text-ink-muted/60 mt-0.5">自适应或手动切换深浅皮肤</p>
-                </div>
-              </div>
-              <ThemeToggle />
-            </div>
-          </div>
-        </section>
 
         <section>
           <h2 className="text-[13px] font-bold text-ink-muted/50 uppercase tracking-widest px-4 mb-3">通用设置</h2>

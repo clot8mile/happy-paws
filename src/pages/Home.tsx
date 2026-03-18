@@ -6,6 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useFavorites } from "../context/FavoriteContext";
 import { api } from "../lib/api";
 import InteractiveButton from "../components/InteractiveButton";
+import OptimizedImage from "../components/OptimizedImage";
 
 interface Pet {
   id: string;
@@ -140,11 +141,11 @@ export default function Home() {
               >
                 <Link to={`/pet/${pet.id}`} className="block">
                   <div className="relative h-48 w-full">
-                    <img
-                      src={pet.images?.[0] || ''}
+                    <OptimizedImage
+                      src={pet.images}
                       alt={pet.name}
-                      referrerPolicy="no-referrer"
-                      className="w-full h-full object-cover"
+                      className="w-full h-full"
+                      fallbackText={pet.name}
                     />
                     <div className="absolute bottom-3 left-3 bg-card-bg/80 backdrop-blur-md rounded-full px-3 py-1 text-xs font-medium flex items-center gap-1 text-ink">
                       <span className={`${pet.gender === "female" ? "text-pink-500" : "text-blue-500"} font-bold`}>
@@ -207,11 +208,11 @@ export default function Home() {
           ) : newPets.length > 0 ? newPets.map((pet) => (
             <Link to={`/pet/${pet.id}`} key={pet.id} className="bg-card-bg rounded-2xl p-4 flex gap-4 shadow-sm border border-border-subtle active:scale-[0.98] transition-transform">
               <div className="w-24 h-24 rounded-xl overflow-hidden flex-shrink-0 bg-primary/10">
-                <img
-                  src={pet.images?.[0] || ''}
+                <OptimizedImage
+                  src={pet.images}
                   alt={pet.name}
-                  referrerPolicy="no-referrer"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full"
+                  fallbackText={pet.name}
                 />
               </div>
               <div className="flex-1 py-1 flex flex-col justify-between min-w-0">

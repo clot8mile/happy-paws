@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAdoptions } from "../context/AdoptionContext";
+import OptimizedImage from "../components/OptimizedImage";
 
 export default function AdoptionProgress() {
   const navigate = useNavigate();
@@ -97,11 +98,12 @@ export default function AdoptionProgress() {
                 </button>
               </div>
             </div>
-            <div className="w-24 h-24 rounded-xl overflow-hidden ml-3 bg-black">
-              <img
+            <div className="w-24 h-24 rounded-xl overflow-hidden ml-3 bg-gray-100">
+              <OptimizedImage
                 src={app.image}
                 alt={app.petName}
-                className="w-full h-full object-cover"
+                className="w-full h-full"
+                fallbackText={app.petName}
               />
             </div>
           </div>

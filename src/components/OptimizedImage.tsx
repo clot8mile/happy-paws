@@ -37,8 +37,14 @@ export default function OptimizedImage({ src, alt, className = "", fallbackText 
             if (Array.isArray(parsed) && parsed.length > 0) resolvedSrc = parsed[0];
             else if (typeof parsed === 'object' && parsed !== null) resolvedSrc = parsed.url || parsed.image || "";
           } catch {
-            // 如果不是标准 JSON，尝试处理 Postgres 数组格式 {"url1", "url2"}
+          // 如果不是标准 JSON，尝试处理 Postgres 数组格式 {"url1", "url2"}
+          // 使用正则提取第一个元素，处理可能的引号包裹
+          const pgArrayMatch = src.match(/\{"?(.*?)"?(?:,|\})/);
+          if (pgArrayMatch && pgArrayMatch[1]) {
+            resolvedSrc = pgArrayMatch[1].trim();
+          } else {
             resolvedSrc = src.replace(/[\{\}\[\]"']/g, '').split(',')[0].trim();
+          }
           }
         } else {
           resolvedSrc = src;

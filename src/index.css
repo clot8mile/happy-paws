@@ -31,19 +31,6 @@
   --card-bg: #FFFFFF;
 }
 
-.dark {
-  /* Dark Theme Palette (Sleek Onyx) */
-  --primary: #D17F4E;
-  --primary-hover: #E39466;
-  --secondary: #74813E;
-  --accent: #5E7A71;
-  --bg-main: #121210;
-  --bg-warm: #1C1C18;
-  --ink: #F2F2F0;
-  --ink-muted: #A3A39A;
-  --border-subtle: #2A2A25;
-  --card-bg: #1E1E1B;
-}
 
 @layer base {
   body {

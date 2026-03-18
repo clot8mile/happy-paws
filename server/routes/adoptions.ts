@@ -76,6 +76,30 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       return res.status(400).json({ error: '宠物名称不能为空' });
     }
 
+    // 防御性编程：确保用户在 public.users 表中存在
+    // 有时触发器可能因为各种原因未执行，或者用户是在触发器创建前注册的
+    const { data: userProfile, error: profileError } = await supabase
+      .from('users')
+      .select('id')
+      .eq('id', req.userId!)
+      .single();
+
+    if (profileError || !userProfile) {
+      console.log(`[Adoption] User profile missing for ${req.userId}, creating one...`);
+      const { error: insertProfileError } = await supabase
+        .from('users')
+        .insert({
+          id: req.userId!,
+          email: req.userEmail || '',
+          name: req.userEmail?.split('@')[0] || '新用户'
+        });
+      
+      if (insertProfileError) {
+        console.error('[Adoption] Failed to create user profile:', insertProfileError);
+        return res.status(500).json({ error: '无法创建用户资料，请联系管理员' });
+      }
+    }
+
     const { data, error } = await supabase
       .from('adoption_applications')
       .insert({
@@ -98,8 +122,12 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       .single();
 
     if (error) {
+      console.error('[Adoption] SQL Insert Error:', error);
+      // 这里的错误信息可能包含数据库约束，直接返回给前端有助于调试
       return res.status(500).json({ error: error.message });
     }
+
+    console.log('[Adoption] Application created:', data.id);
 
     return res.status(201).json({
       ...data,
@@ -177,6 +205,9 @@ router.put('/admin/:id/status', async (req: AuthRequest, res: Response) => {
       case 'rejected':
         statusDesc = '很遗憾，经综合评估您的条件暂不符合该宠物的领养要求';
         isActive = false; // 归档
+        break;
+      default:
+        statusDesc = '您的申请状态已更新';
         break;
     }
 

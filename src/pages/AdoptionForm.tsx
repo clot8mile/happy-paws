@@ -54,7 +54,7 @@ export default function AdoptionForm() {
         setErrors(prev => ({ ...prev, phone: "" }));
       }
 
-      const newId = await addApplication({
+      const appData = {
         petId: id,
         petName: pet.name,
         petInfo: `${pet.breed} / ${pet.age} / ${pet.gender === 'female' ? '女孩' : '男孩'}`,
@@ -65,12 +65,16 @@ export default function AdoptionForm() {
         housingType: formData.get('housing') as string,
         hasExperience: formData.get('experience') === 'true',
         adoptionReason: formData.get('reason') as string,
-      });
+      };
+      
+      console.log('[Form] Submitting application:', appData);
+      const newId = await addApplication(appData);
       showToast("申请提交成功！", "success");
       navigate(`/adoption/${newId}`);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Submission failed:", err);
-      showToast("提交失败，请重试", "error");
+      const errorMessage = err.message || "提交失败，请重试";
+      showToast(errorMessage, "error");
     } finally {
       setIsSubmitting(false);
     }
